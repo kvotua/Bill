@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ponarth</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/stratch.css" />
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <div style="display: none" class="modal-scratch-and-win">
+      <div class="logo-container">
+        <div class="logo-text">Царапай и выигрывай</div>
+      </div>
+
+      <div class="scratch-win__scratcher">
+        <div class="scratch-win__background">
+          <div class="emoji" id="card-fish-1"></div>
+          <div class="title-emoji"></div>
+        </div>
+        <canvas id="canvas-1" class="scratch-win__foreground"></canvas>
+      </div>
+
+      <div class="progress-info">Сотрите защитный слой</div>
+
+      <button class="start-button" data-card="1">Приступить</button>
+    </div>
+    <div style="display: none" class="modal-choose-good">
+      <div class="good-container"></div>
+    </div>
+
+    <div class="page-wrapper">
+      <header>
+        <img src="./assets/PonarthLogo.svg" />
+      </header>
+      <main>
+        <div class="main-content">
+          <div class="main-info">
+            <img class="title" src="./assets/Bill.svg" />
+            <div class="line"></div>
+            <section class="item-list">
+              <div class="item-list-content" id="checkItems"></div>
+            </section>
+
+            <section class="gifts" id="gifts"></section>
+            <div class="line"></div>
+
+            <section class="total-section">
+              <img src="./assets/PRICE.svg" />
+              <div class="price-animation-wrapper">
+                <span class="price" id="price">0 ₽</span>
+              </div>
+            </section>
+            <div class="line"></div>
+
+            <section class="account-equation" id="pointsContainer"></section>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <div class="banner" id="banner"></div>
+        <div class="banner-dots"></div>
+      </footer>
+      <script src="./js/banner.js"></script>
+      <script type="module" src="./js/init.js"></script>
+    </div>
+  </body>
+</html>
