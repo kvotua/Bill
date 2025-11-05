@@ -40,6 +40,10 @@ function createGiftElement(gift) {
   return giftItem;
 }
 
+export function clearGift() {
+  currentGiftsState = [];
+}
+
 function createCouponElement(gift) {
   const couponItem = document.createElement('div');
   couponItem.className = 'coupon-item gift-scale-appear';
@@ -180,6 +184,9 @@ function onCardScratched(cardData) {
     );
     console.log(couponWithId, cardData);
     toggleGiftVisibilityById(cardData.id, true);
+    setTimeout(() => {
+      hideScratchAndWinModal();
+    }, 1200);
   }
 }
 function toggleGiftVisibilityById(giftId, isActive) {
@@ -286,27 +293,22 @@ function setupDropdownHandlers(itemgift) {
     const giftItem = e.currentTarget;
     const giftId = parseInt(giftItem.getAttribute('data-gift-id'));
 
-    // Если клик на choose-button - открываем модальное окно
     openGoodSelectionModal(giftId, giftItem);
     return;
   });
 }
 
 function openGoodSelectionModal(giftId, giftItem) {
-  // Находим данные подарка
   const giftData = currentGiftsState.find(gift => gift.id === giftId);
   if (!giftData || !giftData.dropDownList) return;
 
-  // Находим модальное окно
-
   const modal = document.querySelector('.modal-choose-good');
   modal.classList.add('gift-scale-appear');
+  document.body.classList.add('body-blur');
   const goodContainer = modal.querySelector('.good-container');
 
-  // Очищаем контейнер
   goodContainer.innerHTML = '';
 
-  // Заполняем товарами
   giftData.dropDownList.forEach(item => {
     const goodElement = document.createElement('div');
     goodElement.className = 'good-item';
@@ -333,6 +335,7 @@ function openGoodSelectionModal(giftId, giftItem) {
 
   const closeModal = () => {
     modal.classList.add('gift-scale-disappear');
+    document.body.classList.remove('body-blur');
     setTimeout(() => {
       modal.classList.remove('gift-scale-disappear');
       modal.style.display = 'none';
@@ -356,12 +359,10 @@ function openGoodSelectionModal(giftId, giftItem) {
 function selectGood(giftId, giftItem, selectedItem) {
   const giftText = giftItem.querySelector('.gift-text');
 
-  // Обновляем текст в элементе подарка
   if (giftText) {
     giftText.textContent = selectedItem.title;
   }
 
-  // Сохраняем выбранный товар в атрибуте
   giftItem.setAttribute('select-good-id', selectedItem.id);
 }
 

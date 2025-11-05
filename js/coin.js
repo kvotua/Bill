@@ -5,6 +5,15 @@ let previousCoinState = {
   pointsPerRub: 0,
 };
 
+export function clearCoin() {
+  previousCoinState = {
+    hasUser: false,
+    currentPoints: 0,
+    usePoints: 0,
+    pointsPerRub: 0,
+  };
+}
+
 export function renderCoin(config) {
   const {
     hasUser = false,
@@ -12,7 +21,6 @@ export function renderCoin(config) {
     usePoints = 0,
     pointsPerRub = 0,
   } = config;
-
 
   const container = document.getElementById('pointsContainer');
   if (!container) return;

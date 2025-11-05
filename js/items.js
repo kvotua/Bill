@@ -1,5 +1,13 @@
 let currentItemsState = [];
 
+export function clearCheck(){
+  currentItemsState = [];
+}
+
+function isEmptyObject(obj) {
+  return Object.keys(obj).length === 0;
+}
+
 function createCheckItem(item) {
   const itemLine = document.createElement('div');
   itemLine.className = 'item-line';
@@ -66,6 +74,11 @@ export function diffItems(items) {
   if (currentItemsState.length === 0) {
     return {
       addItems: items,
+    };
+  }
+  if (isEmptyObject(items) && currentItemsState.length !== 0) {
+    return {
+      removeItemsId: currentItemsState.map(item => item.id),
     };
   }
 

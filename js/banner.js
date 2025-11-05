@@ -1,4 +1,3 @@
-
 function showMainContent() {
   const banner = document.getElementById('banner');
   const dotsContainer = document.querySelector('.banner-dots');
@@ -6,50 +5,37 @@ function showMainContent() {
   banner.innerHTML = '';
   dotsContainer.innerHTML = '';
 
+  const slideContents = [
+    { type: 'image', src: '../assets/MadeInKLD.svg' },
+    { type: 'image', src: '../assets/MarzipanStout.svg' },
+    { type: 'image', src: '../assets/Loyalty.svg' },
+    // {
+    //   type: 'video',
+    //   src: '../assets/pumpkin.webm',
+    //   muted: true,
+    //   loop: true,
+    //   playsInline: true,
+    //   preload: 'auto',
+    // },
+    // {
+    //   type: 'image',
+    //   src: 'https://media.giphy.com/media/26n6WgS456BJN3JwA/giphy.gif',
+    // },
+  ];
+
   const slides = [];
   const dots = [];
+  let soundToggle = null; // Добавляем переменную для кнопки звука
 
-  const slide2 = document.createElement('img');
-  slide2.classList.add('slide');
-  slide2.src = '../assets/banner.png';
-
-  const slide3Container = document.createElement('div');
-  slide3Container.classList.add('slide');
-
-  const slide3 = document.createElement('video');
-  slide3.classList.add('slide');
-  slide3.muted = true;
-  slide3.loop = true;
-  slide3.playsInline = true;
-  slide3.preload = 'auto';
-
-  const videoSourceWebM = document.createElement('source');
-  videoSourceWebM.src = '../assets/pumpkin.webm';
-  videoSourceWebM.type = 'video/webm';
-  slide3.appendChild(videoSourceWebM);
-
-  const soundToggle = document.createElement('div');
-  soundToggle.classList.add('video-button', 'glass', 'glass--border-full');
-  soundToggle.type = 'button';
-  soundToggle.innerHTML = `
-          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2">
-            <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-            <line x1="2" y1="22" x2="22" y2="2" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2"/>
-          </svg>`;
-
-  slide3Container.appendChild(slide3);
-  slide3Container.appendChild(soundToggle);
-
-  soundToggle.addEventListener('click', () => this.toggleSound());
-
-  const slide4 = document.createElement('img');
-  slide4.classList.add('slide');
-  slide4.src = 'https://media.giphy.com/media/26n6WgS456BJN3JwA/giphy.gif';
-
-  slides.push(slide2, slide3Container, slide4);
-
-  slides.forEach((slide, index) => {
+  slideContents.forEach((content, index) => {
+    const slide = createSlide(content);
     banner.appendChild(slide);
+    slides.push(slide);
+
+    // Находим soundToggle в видео-слайде
+    if (content.type === 'video' && !soundToggle) {
+      soundToggle = slide.querySelector('.video-button');
+    }
 
     const dot = document.createElement('button');
     dot.classList.add('banner-dot');
@@ -58,18 +44,100 @@ function showMainContent() {
     dots.push(dot);
 
     dot.addEventListener('click', () => {
-      this.goToSlide(index);
+      goToSlide(index);
     });
   });
 
-  this.bannerElements = {
+  // Инициализируем bannerElements с soundToggle
+  window.bannerElements = {
     slides,
     dots,
     currentSlide: 0,
-    soundToggle,
+    soundToggle: soundToggle || createFallbackSoundToggle(), // Создаем fallback если нет видео
   };
-  this.addScrollHandler();
-  this.goToSlide(0);
+
+  addScrollHandler();
+  goToSlide(0);
+}
+
+// Создаем fallback кнопку звука если нет видео-слайдов
+function createFallbackSoundToggle() {
+  const soundToggle = document.createElement('div');
+  soundToggle.classList.add('video-button', 'glass', 'glass--border-full');
+  soundToggle.style.display = 'none'; // Сразу скрываем
+  soundToggle.type = 'button';
+  soundToggle.innerHTML = `
+    <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2">
+      <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      <line x1="2" y1="22" x2="22" y2="2" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2"/>
+    </svg>`;
+
+  // Добавляем в DOM, но скрываем
+  document.body.appendChild(soundToggle);
+  return soundToggle;
+}
+
+function createSlide(content) {
+  switch (content.type) {
+    case 'image':
+      return createImageSlide(content);
+    case 'video':
+      return createVideoSlide(content);
+    default:
+      console.warn(`Unknown slide type: ${content.type}`);
+      return createImageSlide(content);
+  }
+}
+
+function createImageSlide(content) {
+  const img = document.createElement('img');
+  img.classList.add('slide');
+  img.src = content.src;
+  img.alt = content.alt || '';
+  return img;
+}
+
+function createVideoSlide(content) {
+  const container = document.createElement('div');
+  container.classList.add('slide');
+
+  const video = document.createElement('video');
+  video.classList.add('slide');
+  video.muted = content.muted !== undefined ? content.muted : true;
+  video.loop = content.loop !== undefined ? content.loop : true;
+  video.playsInline =
+    content.playsInline !== undefined ? content.playsInline : true;
+  video.preload = content.preload || 'auto';
+
+  const source = document.createElement('source');
+  source.src = content.src;
+
+  if (content.src.endsWith('.webm')) {
+    source.type = 'video/webm';
+  } else if (content.src.endsWith('.mp4')) {
+    source.type = 'video/mp4';
+  } else if (content.type) {
+    source.type = content.type;
+  }
+
+  video.appendChild(source);
+
+  // Всегда создаем кнопку звука для видео-слайдов
+  const soundToggle = document.createElement('div');
+  soundToggle.classList.add('video-button', 'glass', 'glass--border-full');
+  soundToggle.type = 'button';
+  soundToggle.style.display = 'none'; // Изначально скрываем
+  soundToggle.innerHTML = `
+    <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2">
+      <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      <line x1="2" y1="22" x2="22" y2="2" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2"/>
+    </svg>`;
+
+  soundToggle.addEventListener('click', () => toggleSound(video, soundToggle));
+  container.appendChild(soundToggle);
+  container.appendChild(video);
+
+  return container;
 }
 
 function addScrollHandler() {
@@ -81,28 +149,31 @@ function addScrollHandler() {
 
     const currentIndex = Math.round(scrollTop / bannerHeight);
 
-    this.updateActiveSlide(currentIndex);
+    updateActiveSlide(currentIndex);
   });
 }
 
 function updateActiveSlide(index) {
-  const { slides, dots, soundToggle, currentSlide } = this.bannerElements;
+  const { slides, dots, soundToggle, currentSlide } = window.bannerElements;
 
   if (currentSlide === index) return;
 
   slides[currentSlide].classList.remove('active');
   dots[currentSlide].classList.remove('active');
 
-  const currentVideo = this.findVideoInSlide(slides[currentSlide]);
+  const currentVideo = findVideoInSlide(slides[currentSlide]);
   if (currentVideo) {
     currentVideo.pause();
-    soundToggle.style.display = 'none';
+    // Безопасно обновляем soundToggle
+    if (soundToggle && soundToggle.style) {
+      soundToggle.style.display = 'none';
+    }
   }
 
   slides[index].classList.add('active');
   dots[index].classList.add('active');
 
-  const nextVideo = this.findVideoInSlide(slides[index]);
+  const nextVideo = findVideoInSlide(slides[index]);
   if (nextVideo) {
     nextVideo.play().catch(e => {
       nextVideo.muted = true;
@@ -111,12 +182,18 @@ function updateActiveSlide(index) {
       });
     });
 
-    soundToggle.style.display = 'flex';
+    // Безопасно обновляем soundToggle
+    if (soundToggle && soundToggle.style) {
+      soundToggle.style.display = 'flex';
+    }
   } else {
-    soundToggle.style.display = 'none';
+    // Безопасно скрываем soundToggle
+    if (soundToggle && soundToggle.style) {
+      soundToggle.style.display = 'none';
+    }
   }
 
-  this.bannerElements.currentSlide = index;
+  window.bannerElements.currentSlide = index;
 }
 
 function findVideoInSlide(slide) {
@@ -134,7 +211,8 @@ function findVideoInSlide(slide) {
 }
 
 function goToSlide(index) {
-  const { slides, dots, soundToggle, currentSlide } = this.bannerElements;
+  const banner = document.getElementById('banner');
+  const { slides, dots, soundToggle, currentSlide } = window.bannerElements;
 
   slides[currentSlide].classList.remove('active');
   dots[currentSlide].classList.remove('active');
@@ -142,43 +220,45 @@ function goToSlide(index) {
   const currentSlideElement = slides[currentSlide];
   let currentVideo = null;
 
-  if (
-    currentSlideElement.classList.contains('slide') &&
-    currentSlideElement.children.length > 0
-  ) {
-    currentVideo = currentSlideElement.querySelector('video');
+  if (currentSlideElement.classList.contains('slide')) {
+    currentVideo = findVideoInSlide(currentSlideElement);
   }
 
   if (currentVideo) {
     currentVideo.pause();
-    soundToggle.style.display = 'none';
+    // Безопасно скрываем soundToggle
+    if (soundToggle && soundToggle.style) {
+      soundToggle.style.display = 'none';
+    }
   }
 
   slides[index].classList.add('active');
   dots[index].classList.add('active');
 
   const nextSlideElement = slides[index];
-  let nextVideo = null;
-
-  if (
-    nextSlideElement.classList.contains('slide') &&
-    nextSlideElement.children.length > 0
-  ) {
-    nextVideo = nextSlideElement.querySelector('video');
-  }
+  let nextVideo = findVideoInSlide(nextSlideElement);
 
   if (nextVideo) {
     nextVideo
       .play()
       .then(() => {
-        soundToggle.style.display = 'flex';
+        // Безопасно показываем soundToggle
+        if (soundToggle && soundToggle.style) {
+          soundToggle.style.display = 'flex';
+        }
       })
       .catch(e => {
         console.log('Autoplay error:', e);
-        soundToggle.style.display = 'none';
+        // Безопасно скрываем soundToggle
+        if (soundToggle && soundToggle.style) {
+          soundToggle.style.display = 'none';
+        }
       });
   } else {
-    soundToggle.style.display = 'none';
+    // Безопасно скрываем soundToggle
+    if (soundToggle && soundToggle.style) {
+      soundToggle.style.display = 'none';
+    }
   }
 
   const slideOffsetTop = slides[index].offsetTop;
@@ -187,31 +267,25 @@ function goToSlide(index) {
     behavior: 'smooth',
   });
 
-  this.bannerElements.currentSlide = index;
+  window.bannerElements.currentSlide = index;
 }
 
-function toggleSound() {
-  const { slides, currentSlide, soundToggle } = this.bannerElements;
-  const slide = slides[currentSlide];
+function toggleSound(video, soundToggle) {
+  if (!video || !soundToggle) return;
 
-  // Используем ту же функцию поиска видео
-  const video = this.findVideoInSlide(slide);
-
-  if (video) {
-    video.muted = !video.muted;
-    soundToggle.innerHTML = video.muted
-      ? (soundToggle.innerHTML = `
-          <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2">
-            <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-            <line x1="2" y1="22" x2="22" y2="2" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2"/>
-          </svg>
-        `)
-      : (soundToggle.innerHTML = `
-              <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2">
-                <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              </svg>
-            `);
-  }
+  video.muted = !video.muted;
+  soundToggle.innerHTML = video.muted
+    ? `
+        <svg class="mute-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2">
+          <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <line x1="2" y1="22" x2="22" y2="2" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2"/>
+        </svg>
+      `
+    : `
+        <svg class="unmute-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2">
+          <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        </svg>
+      `;
 }
 
 let slideInterval;
@@ -286,7 +360,6 @@ function setupSwipeDetection() {
     setTimeout(startSlideShow, 3000);
   });
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
   showMainContent();

@@ -1,0 +1,98 @@
+/* Универсальные анимации для любого количества элементов */
+.stagger-hide .title {
+    animation: slideUpFade 0.4s ease-out 0.1s forwards;
+}
+
+.stagger-hide .line {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+.stagger-hide .line:nth-of-type(1) { animation-delay: 0.15s; }
+.stagger-hide .line:nth-of-type(2) { animation-delay: 0.55s; }
+.stagger-hide .line:nth-of-type(3) { animation-delay: 0.65s; }
+
+/* Анимация для товаров - рассчитывается через JS */
+.stagger-hide .item-line {
+    animation: slideLeftFade 0.4s ease-out forwards;
+}
+
+/* Анимация для купонов - рассчитывается через JS */
+.stagger-hide .coupon-item {
+    animation: scaleDownFade 0.3s ease-out forwards;
+}
+
+.stagger-hide .gifts {
+    animation: slideRightFade 0.4s ease-out forwards;
+}
+
+.stagger-hide .total-section {
+    animation: slideUpFade 0.4s ease-out forwards;
+}
+
+.stagger-hide .account-equation {
+    animation: slideDownFade 0.4s ease-out forwards;
+}
+
+.stagger-hide .equation-item,
+.stagger-hide .operator {
+    animation: scaleDownFade 0.3s ease-out forwards;
+}
+
+/* Ключевые кадры анимации (остаются те же) */
+@keyframes slideUpFade {
+    to {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+}
+
+@keyframes slideDownFade {
+    to {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+}
+
+@keyframes slideLeftFade {
+    to {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+}
+
+@keyframes slideRightFade {
+    to {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+}
+
+@keyframes scaleDownFade {
+    to {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}
+
+.empty-state {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #764ba2;
+    font-size: 18px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease 0.5s;
+}
+
+.stagger-hide .empty-state {
+    opacity: 1;
+}
